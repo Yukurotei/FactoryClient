@@ -274,10 +274,64 @@ void HandleClientConnection(SOCKET clientSocket, bool loop)
             //(module)setting
             std::string providedString = std::string(buffer).replace(0, 35, "");
             bool startEntering = false;
+            int endI = 0;
+            std::string moduleName = "";
             for (int i = 0; i < providedString.size(); i++) {
                 if (providedString[i - 1] == '(' && !startEntering) //Avoid first bracket
                 {
                     startEntering = true;
+                }
+                if (providedString[i] == ')' && startEntering)
+                {
+                    startEntering = false;
+                    endI = i;
+                    break;
+                }
+                if (startEntering)
+                {
+                    moduleName = moduleName + providedString[i];
+                }
+            }
+            if (GetModule(moduleName) == nullptr)
+            {
+                response = "NoModuleFound: " + moduleName;
+            } else {
+                bool startEnter = false;
+                //Find setting
+                std::string setting = "";
+                for (int i = 0; i < providedString.size(); i++)
+                {
+                    if (i > endI)
+                    {
+                        startEnter = true;
+                    }
+                    if (startEnter)
+                    {
+                        setting = setting + providedString[i]; //The setting name should be at the end
+                    }
+                }
+                if (GetSettingInModule(GetModule(moduleName), setting) == nullptr)
+                {
+                    response = "NoSettingFound: " + setting;
+                } else {
+                    Setting* moduleSetting = GetSettingInModule(GetModule(moduleName), setting);
+                    std::string valueType = "";
+                    std::string valueInString = "";
+                    if (moduleSetting->value.originalValue == "str")
+                    {
+                        valueType = "[S]";
+                    } else if (moduleSetting->value.originalValue == "int")
+                    {
+                        valueType = "[I]";
+                    } else if (moduleSetting->value.originalValue == "flo")
+                    {
+                        valueType = "[F]";
+                    } else if (moduleSetting->value.originalValue == "boo")
+                    {
+                        valueType = "[B]";
+                    }
+                    valueInString = moduleSetting->value.getStringValue();
+                    response = valueType + valueInString;
                 }
             }
         } else if (std::string(buffer).rfind("strMsg", 0) == 0) {
