@@ -1,0 +1,1 @@
+g++ -shared -o shared_lib.dll dllmain.cpp main.cpp -L"C:\Program Files\OpenLogic\jdk-21.0.4.7-hotspot\bin\server" -ljvm -lWs2_32 -lwsock32 -static
