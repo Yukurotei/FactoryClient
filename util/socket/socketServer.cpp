@@ -166,6 +166,26 @@ void HandleClientConnection(SOCKET clientSocket, bool loop)
                     response = "module(" + module->name + ")isDisabled";
                 }
             }
+        } else if (std::string(buffer).rfind("setModuleEnabled", 0) == 0) {
+            std::string finallizedString = std::string(buffer).replace(0, 16, "");
+            Module* module = GetModule(finallizedString);
+            if (module == nullptr)
+            {
+                response = "unknownModule" + finallizedString;
+            } else {
+                module->enabled = true;
+                response = "module(" + module->name + ")Enabled";
+            }
+        } else if (std::string(buffer).rfind("setModuleDisabled", 0) == 0) {
+            std::string finallizedString = std::string(buffer).replace(0, 17, "");
+            Module* module = GetModule(finallizedString);
+            if (module == nullptr)
+            {
+                response = "unknownModule" + finallizedString;
+            } else {
+                module->enabled = false;
+                response = "module(" + module->name + ")Disabled";
+            }
         } else if (std::string(buffer).rfind("getAllSettingOfModule", 0) == 0) {
             std::string finallizedString = std::string(buffer).replace(0, 21, "");
             Module* module = GetModule(finallizedString);
